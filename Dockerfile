@@ -16,7 +16,8 @@ RUN rm -rf /opt/conda && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
     export PATH="/opt/conda/bin:$PATH"
 
-RUN conda config --add channels conda-forge && \
+RUN export PATH="/opt/conda/bin:$PATH" && \
+    conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
     conda update -n base -c defaults conda
 
