@@ -35,7 +35,7 @@ jobs:
             type=raw,value={{sha}},enable=${{github.ref_type != 'tag' }}
             type=raw,value=latest
       
-    - name: Build and push Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
