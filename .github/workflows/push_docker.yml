@@ -32,8 +32,8 @@ jobs:
         with:
           images: chikire/airline_ticket_prediction
           tags: |
-            type=raw, value={{sha}},enable=${{github.ref_type != 'tag' }}
-            type=raw, value=latest
+            type=raw,value={{sha}},enable=${{github.ref_type != 'tag' }}
+            type=raw,value=latest
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -47,13 +47,13 @@ jobs:
       - name: Update docker-compose.yml with new image tag
         if: success()
         run: |
-          sed -i "s|image:  chikire/airline_ticket_prediction:.*|image:  chikire/airline_ticket_prediction:${{ steps.meta.outputs.version }}|" docker-compose.yml
+          sed -i "s|image: chikire/airline_ticket_prediction:.*|image: chikire/airline_ticket_prediction:${{ github.sha }}|" docker-compose.yml
 
       - name: Commit and push updated docker-compose.yml
         if: success()
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docker-compose.yml
-          git commit -m "Update docker-compose.yml with new image tag"
+          git diff --staged --quiet || git commit -m "Update docker-compose.yml with new image tag [skip ci]"
           git push

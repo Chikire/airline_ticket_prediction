@@ -1,45 +1,46 @@
-# Publishes docker image, pinning actions to a commit SHA,
-# and updating most recently built image with the latest tag.
-# Can be triggered by either pushing a commit that changes the `Dockerfile`, 
-# or manually dispatching the workflow. #Reference: https://github.com/ttimbers/dsci522-dockerfile-practice/blob/main/.github/workflows/docker-publish.yml
+# Updates conda-lock file when environment.yml changes
+# This ensures the lock file stays in sync with dependencies
 
-name: Update Docker image
+name: Update conda-lock file
 
-on: 
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "environment.yml"
   workflow_dispatch:
-  push: 
-    paths: 
-      - 'Dockerfile'
-      - 'conda-linux-64.lock'
-      
+
+permissions:
+  contents: write
+
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  update_lock_file:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          images: chikire/airline_ticket_prediction
-          tags: |
-            type=raw, value={{sha}},enable=${{github.ref_type != 'tag' }}
-            type=raw, value=latest
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          environment-file: environment.yml
+          create-args: ""
+          init-shell: bash
+
+      - name: Install conda-lock
+        run: pip install conda-lock
+
+      - name: Generate updated lock file
+        run: conda-lock lock --file environment.yml --platform linux-64 --kind explicit
+
+      - name: Commit & push the new lock file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add conda-linux-64.lock
+          git diff --staged --quiet || git commit -m "Update conda-lock file after environment.yml change"
+          git push
