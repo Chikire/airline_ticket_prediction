@@ -50,6 +50,7 @@ jobs:
           sed -i "s|image:  chikire/airline_ticket_prediction:.*|image:  chikire/airline_ticket_prediction:${{ steps.meta.outputs.version }}|" docker-compose.yml
 
       - name: Commit changes if any
-      run: |
-        git diff --cached --quiet || git commit -m "Your commit message"
-        git push
+        if: success()
+        run: |
+          git diff --cached --quiet || git commit -m "Your commit message"
+          git push
