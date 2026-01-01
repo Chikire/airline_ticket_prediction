@@ -1,7 +1,7 @@
 services:
   # run jupyter notebook inside jupyter 
   jupyter-notebook:
-    image:  chikire/airline_ticket_prediction:d4ab7c7
+    image:  chikire/airline_ticket_prediction:fb3f2c5
     ports:
       - "8888:8888"
     volumes:
