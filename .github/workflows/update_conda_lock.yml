@@ -1,0 +1,45 @@
+name: Update conda-lock file
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "environment.yml"     # Only run when this file changes
+  workflow_dispatch:          # Optional: allow manual trigger
+
+permissions:
+  contents: write             # Give permissions for actions to push
+
+jobs:
+  update_lock_file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # needed for pushing commits
+
+      - name: Install micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          create-args: ""
+          init-shell: bash
+
+      - name: Install conda-lock
+        run: |
+          pip install conda-lock
+
+      - name: Generate updated lock file
+        run: |
+          conda-lock -k explicit --file environment.yml -p linux-64
+
+      - name: Commit & push the new lock file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add conda-linux-64.lock
+          git commit -m "Update conda-lock file after environment.yml change"
+          git push
