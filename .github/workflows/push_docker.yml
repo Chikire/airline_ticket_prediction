@@ -1,7 +1,7 @@
 # Publishes docker image, pinning actions to a commit SHA,
 # and updating most recently built image with the latest tag.
 # Can be triggered by either pushing a commit that changes the `Dockerfile`, 
-# or manually dispatching the workflow. #Reference: https://github.com/ttimbers/dsci522-dockerfile-practice/blob/main/.github/workflows/docker-publish.yml
+# or manually dispatching the workflow.
 
 name: Publish Docker image
 
@@ -43,3 +43,17 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      
+      - name: Update docker-compose.yml with new image tag
+        if: success()
+        run: |
+          sed -i "s|image:  chikire/airline_ticket_prediction:.*|image:  chikire/airline_ticket_prediction:${{ steps.meta.outputs.version }}|" docker-compose.yml
+
+      - name: Commit and push updated docker-compose.yml
+        if: success()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docker-compose.yml
+          git commit -m "Update docker-compose.yml with new image tag"
+          git push
