@@ -10,12 +10,11 @@ RUN sudo apt update \
 
 USER $NB_UID
 
-# Example: Install Miniconda before using conda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
-    && rm Miniconda3-latest-Linux-x86_64.sh \
-    && export PATH="/opt/conda/bin:$PATH"
-ENV PATH /opt/conda/bin:$PATH 
+RUN rm -rf /opt/conda && \
+    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
+    rm Miniconda3-latest-Linux-x86_64.sh && \
+    export PATH="/opt/conda/bin:$PATH"
 
 RUN conda update --quiet --file /tmp/conda-linux-64.lock
 RUN conda clean --all -y -f
