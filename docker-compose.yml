@@ -1,0 +1,12 @@
+services:
+  project-env:
+    image: dvorster/term-deposit-classifier:72d1ff9
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/home/jovyan
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+    platform: linux/amd64
