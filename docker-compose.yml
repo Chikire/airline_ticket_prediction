@@ -1,6 +1,7 @@
 services:
-  project-env:
-    image: dvorster/term-deposit-classifier:72d1ff9
+  # run jupyter notebook inside jupyter 
+  jupyter-notebook:
+    image:  ttimbers/breast-cancer-predictor:bb3b4d6
     ports:
       - "8888:8888"
     volumes:
