@@ -3,7 +3,7 @@
 # Can be triggered by either pushing a commit that changes the `Dockerfile`, 
 # or manually dispatching the workflow. #Reference: https://github.com/ttimbers/dsci522-dockerfile-practice/blob/main/.github/workflows/docker-publish.yml
 
-name: Publish Docker image
+name: Update Docker image
 
 on: 
   workflow_dispatch:
