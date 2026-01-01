@@ -18,8 +18,7 @@ RUN rm -rf /opt/conda && \
 
 RUN export PATH="/opt/conda/bin:$PATH" && \
     conda config --add channels conda-forge && \
-    conda config --set channel_priority strict && \
-    conda update -n base -c defaults conda
+    conda config --set channel_priority strict
 
 RUN conda clean --all -y -f
 RUN fix-permissions "${CONDA_DIR}"
