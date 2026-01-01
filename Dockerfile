@@ -1,15 +1,19 @@
 FROM quay.io/jupyter/minimal-notebook:afe30f0c9ad8
 
-USER root
-RUN apt-get update && apt-get install -y wget bzip2
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh && \
-    bash /miniconda.sh -b -p /opt/conda && \
-    rm /miniconda.sh
-ENV PATH="/opt/conda/bin:$PATH"
-USER ${NB_UID}
-
 COPY conda-linux-64.lock /tmp/conda-linux-64.lock
-RUN conda update --quiet --file /tmp/conda-linux-64.lock
-RUN conda clean --all -y -f
-RUN fix-permissions "${CONDA_DIR}"
-RUN fix-permissions "/home/${NB_USER}"
+
+USER root
+
+# install lmodern for Quarto PDF rendering
+RUN sudo apt update \
+    && sudo apt install -y lmodern texlive texlive-luatex
+
+USER $NB_UID
+
+RUN conda update --quiet --file /tmp/conda-linux-64.lock \
+    && conda clean --all -y -f \
+    && fix-permissions "${CONDA_DIR}" \
+    && fix-permissions "/home/${NB_USER}"
+
+RUN pip install altair_ally==0.1.1 deepchecks==0.19.1 pandera==0.27.0 vegafusion==2.0.3 \
+                vegafusion-python-embed==1.6.9 vl-convert-python==1.8.0 matplotlib==3.10.7 quarto-cli==1.8.26
