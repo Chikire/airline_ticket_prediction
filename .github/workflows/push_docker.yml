@@ -1,7 +1,7 @@
 # Publishes docker image, pinning actions to a commit SHA,
 # and updating most recently built image with the latest tag.
 # Can be triggered by either pushing a commit that changes the `Dockerfile`, 
-# or manually dispatching the workflow. #Reference: https://github.com/ttimbers/dsci522-dockerfile-practice/blob/main/.github/workflows/docker-publish.yml
+# or manually dispatching the workflow.
 
 name: Publish Docker image
 
@@ -32,8 +32,8 @@ jobs:
         with:
           images: chikire/airline_ticket_prediction
           tags: |
-            type=raw,value={{sha}},enable=${{github.ref_type != 'tag' }}
-            type=raw,value=latest
+            type=raw, value={{sha}},enable=${{github.ref_type != 'tag' }}
+            type=raw, value=latest
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -43,11 +43,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
+      
       - name: Update docker-compose.yml with new image tag
         if: success()
         run: |
-          sed -i "s|image: dvorster/term-deposit-classifier:.*|image: dvorster/term-deposit-classifier:${{ steps.meta.outputs.version }}|" docker-compose.yml
+          sed -i "s|image:  chikire/airline_ticket_prediction:.*|image:  chikire/airline_ticket_prediction:${{ steps.meta.outputs.version }}|" docker-compose.yml
 
       - name: Commit and push updated docker-compose.yml
         if: success()
@@ -55,5 +55,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docker-compose.yml
-          git commit -m "Update docker-compose.yml with new image tag" || exit 0
-          git push origin main
+          git commit -m "Update docker-compose.yml with new image tag"
+          git push
