@@ -12,8 +12,9 @@ RUN sudo apt update \
 USER $NB_UID
 
 # install packages from conda-linux-64.lock
-RUN conda create --name base --file /tmp/conda-linux-64.lock --yes --quiet \
-    && conda clean --all -y -f \
+# Explicit lock files contain full URLs and must be installed with conda/mamba directly
+RUN mamba install --file /tmp/conda-linux-64.lock --yes \
+    && mamba clean --all -y -f \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
 
